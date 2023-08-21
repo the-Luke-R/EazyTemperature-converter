@@ -21,7 +21,6 @@ class MainWindow(QMainWindow):
 
         self.label = QLabel("Type the desired temperature in one of the fields", self)
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.label.setStyleSheet("font-size: 17px;")
         main_layout.addWidget(self.label)
 
         input_layout = QGridLayout()
@@ -69,7 +68,6 @@ class MainWindow(QMainWindow):
     def handle_button_click(self):
         self.get_input()
         self.convert_clicked()
-        self.change_ui_color()
 
     def convert_clicked(self):
         self.convert_btn.setEnabled(False)
@@ -78,12 +76,23 @@ class MainWindow(QMainWindow):
     def get_input(self):
         if not (any(char.isspace() for char in self.temp_celsius.text()) or self.temp_celsius.text().isalpha() or self.temp_celsius.text() == ""):
             self.celsius_to_fahrenheit_and_kelvin(self.temp_celsius.text())
+            self.change_ui_color()
         elif not (any(char.isspace() for char in self.temp_fahrenheit.text()) or self.temp_fahrenheit.text().isalpha() or self.temp_fahrenheit.text() == ""):
             self.fahrenheit_to_celsius_and_kelvin(self.temp_fahrenheit.text())
+            self.change_ui_color()
         elif not (any(char.isspace() for char in self.temp_kelvin.text()) or self.temp_kelvin.text().isalpha() or self.temp_kelvin.text() == ""):
             self.kelvin_to_celsius_and_fahrenheit(self.temp_kelvin.text())
+            self.change_ui_color()
         else:
-            print("error")
+            self.show_error_message()
+
+    def show_error_message(self):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Icon.Critical)
+        msg_box.setWindowTitle("Error")
+        msg_box.setText("Please insert valid values")
+        msg_box.addButton(QMessageBox.StandardButton.Ok)
+        msg_box.exec()
 
     def celsius_to_fahrenheit_and_kelvin(self, temp_celsius):
         if temp_celsius.isdigit():
@@ -126,7 +135,6 @@ class MainWindow(QMainWindow):
             fahrenheit = celsius * 1.80 + 32.00
             self.temp_celsius.setText(str(celsius))
             self.temp_fahrenheit.setText(str(fahrenheit))
-
 
     def change_ui_color(self):
         if int(float(self.temp_fahrenheit.text().replace(",", "."))) >= 91:
