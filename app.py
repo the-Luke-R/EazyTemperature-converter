@@ -69,23 +69,40 @@ class MainWindow(QMainWindow):
         self.get_input()
         self.convert_clicked()
 
+    # disables 'Convert' button, enables 'Clear' button
     def convert_clicked(self):
         self.convert_btn.setEnabled(False)
         self.clear_btn.setEnabled(True)
+        self.convert_btn.setStyleSheet("color: grey")
+        self.clear_btn.setStyleSheet("color: white")
 
+    # collects each temperature and checks if we can start the conversions
     def get_input(self):
-        if not (any(char.isspace() for char in self.temp_celsius.text()) or self.temp_celsius.text().isalpha() or self.temp_celsius.text() == ""):
-            self.celsius_to_fahrenheit_and_kelvin(self.temp_celsius.text())
+        celsius_input = self.temp_celsius.text()
+        fahrenheit_input = self.temp_fahrenheit.text()
+        kelvin_input = self.temp_kelvin.text()
+
+        if self.validate_input(celsius_input, char_type="celsius"):
+            self.celsius_to_fahrenheit_and_kelvin(celsius_input)
             self.change_ui_color()
-        elif not (any(char.isspace() for char in self.temp_fahrenheit.text()) or self.temp_fahrenheit.text().isalpha() or self.temp_fahrenheit.text() == ""):
-            self.fahrenheit_to_celsius_and_kelvin(self.temp_fahrenheit.text())
+        elif self.validate_input(fahrenheit_input, char_type="fahrenheit"):
+            self.fahrenheit_to_celsius_and_kelvin(fahrenheit_input)
             self.change_ui_color()
-        elif not (any(char.isspace() for char in self.temp_kelvin.text()) or self.temp_kelvin.text().isalpha() or self.temp_kelvin.text() == ""):
-            self.kelvin_to_celsius_and_fahrenheit(self.temp_kelvin.text())
+        elif self.validate_input(kelvin_input, char_type="kelvin"):
+            self.kelvin_to_celsius_and_fahrenheit(kelvin_input)
             self.change_ui_color()
         else:
             self.show_error_message()
 
+    # Checks if the temperatures are not invalid values
+    def validate_input(self, input_text, char_type):
+        if input_text.strip():
+            if not any(char.isspace() or char.isalpha() or char == "" for char in input_text):
+                if char_type in ["celsius", "fahrenheit", "kelvin"]:
+                    return True
+        return False
+
+    # If temperatures values are invalid, display error
     def show_error_message(self):
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Icon.Critical)
@@ -94,20 +111,22 @@ class MainWindow(QMainWindow):
         msg_box.addButton(QMessageBox.StandardButton.Ok)
         msg_box.exec()
 
-    def celsius_to_fahrenheit_and_kelvin(self, temp_celsius):
-        if temp_celsius.isdigit():
-            celsius = int(temp_celsius)
+    # Checks if user input is int or float, converts to fahrenheit and kelvin
+    def celsius_to_fahrenheit_and_kelvin(self, celsius_input):
+        if celsius_input.isdigit():
+            celsius = int(celsius_input)
             fahrenheit = celsius * 1.80 + 32.00
             kelvin = celsius + 273.15
             self.temp_fahrenheit.setText(str(fahrenheit))
             self.temp_kelvin.setText(str(kelvin))
         else:
-            celsius = float(temp_celsius.replace(",", "."))
+            celsius = float(celsius_input.replace(",", "."))
             fahrenheit = celsius * 1.80 + 32.00
             kelvin = celsius + 273.15
             self.temp_fahrenheit.setText(str(fahrenheit))
             self.temp_kelvin.setText(str(kelvin))
 
+    # Checks if user input is int or float, converts to celsius and kelvin
     def fahrenheit_to_celsius_and_kelvin(self, temp_fahrenheit):
         if temp_fahrenheit.isdigit():
             fahrenheit = int(temp_fahrenheit)
@@ -122,6 +141,7 @@ class MainWindow(QMainWindow):
             self.temp_celsius.setText(str(celsius))
             self.temp_kelvin.setText(str(kelvin))
 
+    # Checks if user input is int or float, converts to celsius and fahrenheit
     def kelvin_to_celsius_and_fahrenheit(self, temp_kelvin):
         if temp_kelvin.isdigit():
             kelvin = int(temp_kelvin)
@@ -136,11 +156,12 @@ class MainWindow(QMainWindow):
             self.temp_celsius.setText(str(celsius))
             self.temp_fahrenheit.setText(str(fahrenheit))
 
+    # Changes the UI color based on fahrenheit value
     def change_ui_color(self):
         if int(float(self.temp_fahrenheit.text().replace(",", "."))) >= 91:
             self.setStyleSheet("background-color: red;")
         elif  55 < int(float(self.temp_fahrenheit.text().replace(",", "."))) < 114:
-            self.setStyleSheet("background-color: grey;")
+            self.setStyleSheet("background-color: #009933")
         else:
             int(float(self.temp_fahrenheit.text().replace(",", "."))) <= 55
             self.setStyleSheet("background-color: blue;")
@@ -154,12 +175,15 @@ class MainWindow(QMainWindow):
             self.temp_fahrenheit.setStyleSheet("color: white")
             self.temp_kelvin.setStyleSheet("color: white")
 
+    # Clear all fields and change button state and color
     def clear_text(self):
         self.temp_celsius.clear()
         self.temp_fahrenheit.clear()
         self.temp_kelvin.clear()
         self.convert_btn.setEnabled(True)
         self.clear_btn.setEnabled(False)
+        self.clear_btn.setStyleSheet("color: grey")
+        self.convert_btn.setStyleSheet("color: white")
 
 app = QApplication(sys.argv)
 main_window = MainWindow()
